@@ -1,0 +1,5 @@
+{
+  "name": "MCP Forge",
+  "description": "A lightweight, purely local desktop application for macOS that makes it easy to create, edit, manage, and switch between MCP (Model Context Protocol) profiles.",
+  "requestFramePermissions": []
+}
