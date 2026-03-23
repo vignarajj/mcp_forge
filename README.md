@@ -1,17 +1,122 @@
 # MCP Forge
 
-[![Tests](https://img.shields.io/badge/Tests-Passing-success.svg)](#testing)
+[![Tests](https://img.shields.io/badge/Tests-94%20Passing-success.svg)](#testing)
+[![Coverage](https://img.shields.io/badge/Coverage-99%25-brightgreen.svg)](#testing)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-MCP Forge is a lightweight, purely local macOS desktop application (Apple Silicon only) that makes it easy to create, edit, manage, and switch between MCP (Model Context Protocol) profiles.
+A lightweight, 100% local profile manager for MCP (Model Context Protocol) configurations. Built for macOS (Apple Silicon).
+
+---
+
+## What is MCP Forge?
+
+MCP Forge lets you **create, edit, manage, and switch between** MCP profiles for your AI coding tools — all from a single visual interface. No cloud accounts, no telemetry, no raw JSON editing.
+
+### The Problem
+
+Each AI coding tool (Cursor, Claude Code, Gemini CLI, etc.) uses its own MCP configuration file. Managing these across multiple projects means:
+- Manually editing JSON config files per tool
+- No way to share or reuse configurations across projects
+- No visual way to see what rules, context folders, or ignore patterns you've set
+
+### How MCP Forge Works
+
+MCP Forge provides a **single UI** to manage all your MCP profiles:
+
+1. **Profiles View** — The dashboard. Create, search, duplicate, delete, and switch between profiles. Each profile is tied to a specific tool (Cursor, Claude Code, etc.) and contains its own set of rules, context folders, and ignore patterns.
+
+2. **Editor View** — Select any profile and edit it visually:
+   - **Rules** — System-level instructions for the AI
+   - **MCP Servers** — Add, edit, and remove MCP server entries with name, command, args, and environment variables
+   - **Context Folders** — Directories the AI should have access to
+   - **Ignore Patterns** — Files/folders the AI should skip
+   - **Deploy** — Generate the tool-specific config (JSON or TOML), see validation status, and copy to clipboard with the exact target file path shown
+
+3. **Tools View** — Overview of the 6 supported AI coding tools with per-tool profile counts and config file paths:
+   - Cursor (`~/.cursor/mcp.json`), Claude Code (`~/.claude.json`), Gemini CLI (`~/.gemini/settings.json`), Codex (`~/.codex/config.toml`), Antigravity, Qwen CLI
+
+4. **Settings View** — Storage info and data management. See real-time storage usage and clear all data with one click.
+
+### Data Flow
+
+```
+User creates profile → adds MCP servers (name, command, args, env)
+        ↓
+Profile saved to browser LocalStorage
+        ↓
+Deploy tab generates tool-specific config (JSON or TOML)
+        ↓
+Validator checks structure: required fields, duplicates, npx -y flag, env vars
+        ↓
+User copies config → pastes into tool's config file (path shown in UI)
+        ↓
+AI tool reads the MCP configuration
+```
+
+All data stays on your machine. Nothing leaves the browser.
+
+---
 
 ## Features
 
-- **100% Local**: Everything is stored in local files. No cloud, no accounts, no telemetry.
-- **Unlimited Profiles**: Create as many MCP profiles as you need.
-- **Tool Support**: Assign profiles to Cursor, Claude Code, Antigravity, Qwen CLI, Gemini CLI, or Codex.
-- **Visual Editor**: Edit MCP files with helpful UI controls (no raw JSON editing required).
-- **Monochrome Theme**: Clean black/white native macOS look and feel.
+- **100% Local** — No cloud, no accounts, no telemetry. Everything is stored in browser LocalStorage.
+- **Unlimited Profiles** — Create as many MCP profiles as you need for different projects and tools.
+- **6 Tool Targets** — Assign profiles to Cursor, Claude Code, Antigravity, Qwen CLI, Gemini CLI, or Codex.
+- **Visual MCP Server Editor** — Add/edit/remove MCP server entries with name, command, args, and env vars.
+- **Auto-Format Config** — Generates the correct config format per tool (JSON for Cursor/Claude/Gemini, TOML for Codex).
+- **Config Validation** — Real-time structural validation with error/warning indicators (missing fields, duplicate names, npx -y check, empty env values).
+- **Deploy with File Paths** — Shows the exact config file path per tool and copy-to-clipboard for instant deployment.
+- **Search & Filter** — Quickly find profiles by name.
+- **Duplicate & Export** — Clone profiles or export them as `.mcp.json` files.
+- **Monochrome Theme** — Clean black/white macOS-native look and feel.
+
+---
+
+## Architecture
+
+```
+src/
+├── App.tsx                    # Root: view routing + state wiring
+├── types.ts                   # TypeScript types (McpProfile, McpTool, ToolName, ValidationResult)
+├── hooks/
+│   └── useProfiles.ts         # Core state: CRUD operations, localStorage persistence
+├── lib/
+│   ├── toolConfigs.ts         # Tool config paths + JSON/TOML config generation
+│   └── mcpValidator.ts        # MCP structural validation engine
+├── components/
+│   └── Sidebar.tsx            # Navigation sidebar (Profiles/Tools/Editor/Settings)
+└── views/
+    ├── ProfilesView.tsx       # Profile dashboard: list, search, create, delete, duplicate
+    ├── EditorView.tsx         # Profile editor: rules, MCP servers, context, ignore, deploy
+    ├── ToolsView.tsx          # Supported tools with profile counts and config paths
+    └── SettingsView.tsx       # Storage info, clear data, privacy, version
+```
+
+**Stack**: React 19, Vite, Tailwind CSS v4, Lucide React, Vitest + React Testing Library
+
+**State Management**: `useProfiles` hook persists all profiles to `localStorage` under the key `mcp-forge-profiles`. The active profile ID is stored separately under `mcp-forge-active-profile`.
+
+---
+
+## Testing
+
+94 tests across 9 test files.
+
+```bash
+npm run test        # Run all tests
+npm run coverage    # Run with coverage report
+```
+
+Test files mirror the source structure:
+- `App.test.tsx` — View routing, sidebar navigation, edit-flow
+- `useProfiles.test.ts` — All CRUD operations, localStorage persistence, edge cases
+- `Sidebar.test.tsx` — Nav rendering, click handling, active state
+- `ProfilesView.test.tsx` — Create, search, delete, duplicate, active state, tool selection
+- `EditorView.test.tsx` — Tab switching, MCP server add/edit/remove, deploy validation, config output
+- `ToolsView.test.tsx` — Tool rendering, profile counts, config file paths
+- `SettingsView.test.tsx` — Storage display, clear data functionality
+- `toolConfigs.test.ts` — Config path lookups, JSON generation, TOML generation, format selection
+- `mcpValidator.test.ts` — All validation rules: required fields, duplicates, npx -y, env checks
 
 ---
 
@@ -19,120 +124,65 @@ MCP Forge is a lightweight, purely local macOS desktop application (Apple Silico
 
 ### Option 1: Homebrew (Recommended for macOS)
 
-You can install MCP Forge directly via Homebrew using our custom tap:
-
 ```bash
-brew tap yourusername/mcp-forge
+brew tap vignaraj/mcp-forge
 brew install --cask mcp-forge
 ```
 
 ### Option 2: NPM (Global CLI)
 
-You can also install the MCP Forge CLI globally via npm, which will launch the desktop application:
-
 ```bash
 npm install -g mcp-forge
 ```
 
-Once installed, simply run:
+Once installed, run:
 ```bash
 mcp-forge
 ```
 
+This will build the app (if needed), start a local preview server, and open it in your browser.
+
 ---
 
-## Development & Testing
+## Development Setup
 
-This project is built with a modern, lightweight stack suitable for macOS. The UI is built with React and Tailwind CSS, designed to be wrapped in Tauri 2 or Electron for native distribution.
+### Prerequisites
+- Node.js 18+
+- npm 9+
 
-### Setup
+### Steps
+
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/mcp-forge.git
+   git clone https://github.com/vignaraj/mcp-forge.git
    cd mcp-forge
    ```
+
 2. Install dependencies:
    ```bash
    npm install
    ```
+
 3. Start the development server:
    ```bash
    npm run dev
    ```
+   The app will be available at `http://localhost:3000`.
 
-### Testing
+### Available Scripts
 
-We use **Vitest** and **React Testing Library** for complete test coverage.
-
-To run the test suite:
-```bash
-npm run test
-```
-
-To generate a test coverage report:
-```bash
-npm run coverage
-```
+| Script | Description |
+|---|---|
+| `npm run dev` | Start Vite dev server on port 3000 |
+| `npm run build` | Production build to `dist/` |
+| `npm run preview` | Serve the production build locally |
+| `npm run test` | Run all tests with Vitest |
+| `npm run coverage` | Run tests with coverage report |
+| `npm run lint` | TypeScript type checking |
+| `npm run clean` | Remove `dist/` directory |
 
 ---
 
-## Publishing Guide (For Maintainers)
+## License
 
-If you are forking or maintaining this repository, here is how you can publish your own releases to NPM and Homebrew.
-
-### 1. Publishing to NPM
-
-To make `npm install -g mcp-forge` work, you need to publish the package to the NPM registry.
-
-1. **Update `package.json`**: Ensure your `package.json` has a `bin` field pointing to your CLI entry point (e.g., an Electron launcher or a script that opens the web UI).
-   ```json
-   "bin": {
-     "mcp-forge": "./bin/cli.js"
-   }
-   ```
-2. **Login to NPM**:
-   ```bash
-   npm login
-   ```
-3. **Publish**:
-   ```bash
-   npm publish
-   ```
-
-### 2. Publishing to Homebrew (Cask)
-
-To allow users to run `brew install --cask mcp-forge`, you need to create a Homebrew Tap.
-
-1. **Create a new GitHub repository** named `homebrew-mcp-forge` (or `homebrew-tap`).
-2. **Create a Cask file** (`Casks/mcp-forge.rb`) in that repository:
-   ```ruby
-   cask "mcp-forge" do
-     version "1.0.0"
-     sha256 "INSERT_SHA256_HASH_OF_DMG_HERE"
-
-     url "https://github.com/yourusername/mcp-forge/releases/download/v#{version}/MCP-Forge-mac-arm64.dmg"
-     name "MCP Forge"
-     desc "Local MCP Profile Manager"
-     homepage "https://github.com/yourusername/mcp-forge"
-
-     app "MCP Forge.app"
-
-     zap trash: [
-       "~/Library/Application Support/MCP Forge",
-       "~/Library/Preferences/com.yourusername.mcpforge.plist",
-     ]
-   end
-   ```
-3. **Release your App**: Build your `.dmg` (e.g., via `npm run tauri build`), get its SHA256 hash (`shasum -a 256 app.dmg`), update the Ruby file, and upload the `.dmg` to your GitHub Releases.
-4. **Users can now install it**:
-   ```bash
-   brew tap yourusername/mcp-forge
-   brew install --cask mcp-forge
-   ```
-
-## Architecture
-
-- **Frontend**: React 19, Vite, Tailwind CSS v4, Lucide React.
-- **Testing**: Vitest, React Testing Library, JSDOM.
-- **State Management**: LocalStorage (simulating local file system for the web prototype).
-- **Styling**: Pure monochrome theme using Tailwind's utility classes.
+MIT

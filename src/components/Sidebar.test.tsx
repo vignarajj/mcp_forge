@@ -4,9 +4,7 @@ import { Sidebar } from './Sidebar';
 
 describe('Sidebar Component', () => {
   it('renders all navigation items', () => {
-    const mockSetCurrentView = vi.fn();
-    render(<Sidebar currentView="profiles" setCurrentView={mockSetCurrentView} />);
-
+    render(<Sidebar currentView="profiles" setCurrentView={vi.fn()} />);
     expect(screen.getByText('Profiles')).toBeInTheDocument();
     expect(screen.getByText('Tools')).toBeInTheDocument();
     expect(screen.getByText('Editor')).toBeInTheDocument();
@@ -14,25 +12,35 @@ describe('Sidebar Component', () => {
   });
 
   it('calls setCurrentView when a navigation item is clicked', () => {
-    const mockSetCurrentView = vi.fn();
-    render(<Sidebar currentView="profiles" setCurrentView={mockSetCurrentView} />);
-
-    const toolsButton = screen.getByText('Tools');
-    fireEvent.click(toolsButton);
-
-    expect(mockSetCurrentView).toHaveBeenCalledWith('tools');
+    const setCurrentView = vi.fn();
+    render(<Sidebar currentView="profiles" setCurrentView={setCurrentView} />);
+    fireEvent.click(screen.getByText('Tools'));
+    expect(setCurrentView).toHaveBeenCalledWith('tools');
   });
 
   it('highlights the active view', () => {
-    const mockSetCurrentView = vi.fn();
-    render(<Sidebar currentView="editor" setCurrentView={mockSetCurrentView} />);
-
+    render(<Sidebar currentView="editor" setCurrentView={vi.fn()} />);
     const editorButton = screen.getByText('Editor').closest('button');
-    expect(editorButton).toHaveClass('bg-neutral-900');
+    expect(editorButton).toHaveClass('bg-neutral-800');
     expect(editorButton).toHaveClass('text-white');
 
     const profilesButton = screen.getByText('Profiles').closest('button');
-    expect(profilesButton).not.toHaveClass('bg-neutral-900');
-    expect(profilesButton).toHaveClass('text-neutral-400');
+    expect(profilesButton).not.toHaveClass('bg-neutral-800');
+    expect(profilesButton).toHaveClass('text-neutral-500');
+  });
+
+  it('does NOT render a version footer', () => {
+    render(<Sidebar currentView="profiles" setCurrentView={vi.fn()} />);
+    expect(screen.queryByText('v1.0.0')).not.toBeInTheDocument();
+  });
+
+  it('does NOT render a Local Mode footer', () => {
+    render(<Sidebar currentView="profiles" setCurrentView={vi.fn()} />);
+    expect(screen.queryByText('Local Mode')).not.toBeInTheDocument();
+  });
+
+  it('renders the MCP Forge brand name', () => {
+    render(<Sidebar currentView="profiles" setCurrentView={vi.fn()} />);
+    expect(screen.getByText('MCP Forge')).toBeInTheDocument();
   });
 });

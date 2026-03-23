@@ -15,11 +15,11 @@ export default function App() {
   return (
     <div className="flex h-screen w-full bg-black text-white overflow-hidden font-sans antialiased selection:bg-neutral-800">
       {/* macOS Title Bar Simulation */}
-      <div className="absolute top-0 left-0 right-0 h-10 flex items-center px-4 z-50 pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 h-10 flex items-center px-4 z-50 pointer-events-none isolate">
         <div className="flex space-x-2">
-          <div className="w-3 h-3 rounded-full bg-neutral-700 border border-neutral-600"></div>
-          <div className="w-3 h-3 rounded-full bg-neutral-700 border border-neutral-600"></div>
-          <div className="w-3 h-3 rounded-full bg-neutral-700 border border-neutral-600"></div>
+          <div className="w-3 h-3 rounded-full bg-[#FF5F56] border border-[#E0443E]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-[#DEA123]"></div>
+          <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-[#1AAB29]"></div>
         </div>
       </div>
 
@@ -29,7 +29,7 @@ export default function App() {
         {currentView === 'profiles' && <ProfilesView {...profileState} onEdit={(id) => { profileState.setActiveProfileId(id); setCurrentView('editor'); }} />}
         {currentView === 'tools' && <ToolsView {...profileState} />}
         {currentView === 'editor' && <EditorView {...profileState} />}
-        {currentView === 'settings' && <SettingsView />}
+        {currentView === 'settings' && <SettingsView profilesCount={profileState.profiles.length} />}
       </main>
     </div>
   );

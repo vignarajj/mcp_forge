@@ -1,5 +1,7 @@
-import { Wrench, Terminal, Code2, Sparkles, Box, Cpu } from 'lucide-react';
+import { Terminal, Code2, Sparkles, Box, Cpu } from 'lucide-react';
 import { useProfiles } from '../hooks/useProfiles';
+import { getToolConfigInfo } from '../lib/toolConfigs';
+import { ToolName } from '../types';
 
 type ToolsViewProps = ReturnType<typeof useProfiles>;
 
@@ -38,11 +40,13 @@ export function ToolsView({ profiles }: ToolsViewProps) {
                 </div>
                 <h3 className="text-lg font-medium text-white mb-1">{tool.name}</h3>
                 <p className="text-sm text-neutral-400">{tool.desc}</p>
-                
-                <div className="mt-6 pt-4 border-t border-neutral-800">
-                  <button className="text-sm font-medium text-white hover:text-neutral-300 transition-colors">
-                    View Integration Docs &rarr;
-                  </button>
+
+                <div className="mt-4 pt-4 border-t border-neutral-800">
+                  <p className="text-xs text-neutral-500 mb-1">Config path:</p>
+                  <code className="text-xs text-neutral-300 bg-neutral-800 px-2 py-0.5 rounded" data-testid={`path-${tool.id}`}>
+                    {getToolConfigInfo(tool.name as ToolName).globalPath}
+                  </code>
+                  <p className="text-xs text-neutral-600 mt-1">{getToolConfigInfo(tool.name as ToolName).format.toUpperCase()}</p>
                 </div>
               </div>
             );

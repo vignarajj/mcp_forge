@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useProfiles } from '../hooks/useProfiles';
-import { Plus, Search, Copy, Trash2, Edit2, Layers } from 'lucide-react';
+import { Plus, Search, Copy, Trash2, Edit2, Layers, AlertTriangle } from 'lucide-react';
 import { ToolName } from '../types';
 import clsx from 'clsx';
 
@@ -13,8 +13,10 @@ export function ProfilesView({ profiles, activeProfileId, setActiveProfileId, ad
   const [isCreating, setIsCreating] = useState(false);
   const [newProfileName, setNewProfileName] = useState('');
   const [newProfileTool, setNewProfileTool] = useState<ToolName>('Cursor');
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
 
   const filteredProfiles = profiles.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const pendingDeleteProfile = profiles.find(p => p.id === pendingDeleteId);
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +27,54 @@ export function ProfilesView({ profiles, activeProfileId, setActiveProfileId, ad
     }
   };
 
+  const handleDeleteRequest = (id: string) => setPendingDeleteId(id);
+  const handleDeleteCancel = () => setPendingDeleteId(null);
+  const handleDeleteConfirm = () => {
+    if (pendingDeleteId) {
+      deleteProfile(pendingDeleteId);
+      setPendingDeleteId(null);
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col h-full bg-black">
+      {/* Delete Confirmation Modal */}
+      {pendingDeleteId && pendingDeleteProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div
+            data-testid="delete-confirm-dialog"
+            className="w-full max-w-md mx-4 bg-neutral-900 border border-neutral-700 rounded-xl p-6 shadow-2xl"
+          >
+            <div className="flex items-start space-x-3 mb-5">
+              <AlertTriangle size={20} className="text-red-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-sm font-semibold text-white">Delete profile?</h3>
+                <p className="text-xs text-neutral-400 mt-1 leading-relaxed">
+                  <span className="text-neutral-200 font-medium">"{pendingDeleteProfile.name}"</span> will
+                  be permanently deleted. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleDeleteCancel}
+                data-testid="delete-cancel-btn"
+                className="px-4 py-2 text-sm font-medium text-neutral-400 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                data-testid="delete-confirm-btn"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+              >
+                Delete Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-6 border-b border-neutral-900">
         <div>
@@ -58,7 +106,7 @@ export function ProfilesView({ profiles, activeProfileId, setActiveProfileId, ad
           />
         </div>
 
-        {/* Create Modal (Inline for simplicity) */}
+        {/* Create Form */}
         {isCreating && (
           <div className="mb-8 p-6 border border-neutral-800 rounded-xl bg-neutral-900/30">
             <h3 className="text-lg font-medium text-white mb-4">Create New Profile</h3>
@@ -136,14 +184,26 @@ export function ProfilesView({ profiles, activeProfileId, setActiveProfileId, ad
                   </div>
                   
                   {/* Actions Menu */}
-                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => onEdit(profile.id)} className="p-1.5 text-neutral-400 hover:text-white rounded-md hover:bg-neutral-800" title="Edit">
+                  <div className="flex items-center space-x-0.5 opacity-0 group-hover:opacity-100 transition-all duration-150">
+                    <button
+                      onClick={() => onEdit(profile.id)}
+                      className="p-1.5 text-neutral-500 hover:text-white rounded-md hover:bg-neutral-800 transition-all duration-150 hover:scale-110"
+                      title="Edit"
+                    >
                       <Edit2 size={14} />
                     </button>
-                    <button onClick={() => duplicateProfile(profile.id)} className="p-1.5 text-neutral-400 hover:text-white rounded-md hover:bg-neutral-800" title="Duplicate">
+                    <button
+                      onClick={() => duplicateProfile(profile.id)}
+                      className="p-1.5 text-neutral-500 hover:text-white rounded-md hover:bg-neutral-800 transition-all duration-150 hover:scale-110"
+                      title="Duplicate"
+                    >
                       <Copy size={14} />
                     </button>
-                    <button onClick={() => deleteProfile(profile.id)} className="p-1.5 text-neutral-400 hover:text-red-400 rounded-md hover:bg-neutral-800" title="Delete">
+                    <button
+                      onClick={() => handleDeleteRequest(profile.id)}
+                      className="p-1.5 text-neutral-500 hover:text-red-400 rounded-md hover:bg-red-950/40 transition-all duration-150 hover:scale-110"
+                      title="Delete"
+                    >
                       <Trash2 size={14} />
                     </button>
                   </div>
