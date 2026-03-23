@@ -52,7 +52,7 @@ User copies config → pastes into tool's config file (path shown in UI)
         ↓
 AI tool reads the MCP configuration
 ```
-
+git 
 All data stays on your machine. Nothing leaves the browser.
 
 ---

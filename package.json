@@ -1,5 +1,5 @@
 {
-  "name": "mcp-forge",
+  "name": "@vignaraj_rr/mcp-forge",
   "version": "1.0.0",
   "type": "module",
   "description": "A lightweight, purely local macOS desktop application for creating, editing, managing, and switching between MCP (Model Context Protocol) profiles.",
