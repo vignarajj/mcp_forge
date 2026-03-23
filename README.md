@@ -52,7 +52,6 @@ User copies config → pastes into tool's config file (path shown in UI)
         ↓
 AI tool reads the MCP configuration
 ```
-git 
 All data stays on your machine. Nothing leaves the browser.
 
 ---
@@ -122,10 +121,10 @@ Test files mirror the source structure:
 
 ## Installation
 
-### Option : NPM (Global CLI)
+### Option 1: NPM (Global CLI)
 
 ```bash
-npm install -g mcp-forge
+npm install -g @vignaraj_rr/mcp-forge
 ```
 
 Once installed, run:
