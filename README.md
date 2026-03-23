@@ -122,14 +122,7 @@ Test files mirror the source structure:
 
 ## Installation
 
-### Option 1: Homebrew (Recommended for macOS)
-
-```bash
-brew tap vignaraj/mcp-forge
-brew install --cask mcp-forge
-```
-
-### Option 2: NPM (Global CLI)
+### Option : NPM (Global CLI)
 
 ```bash
 npm install -g mcp-forge
@@ -154,7 +147,7 @@ This will build the app (if needed), start a local preview server, and open it i
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/vignaraj/mcp-forge.git
+   git clone https://github.com/vignarajj/mcp-forge.git
    cd mcp-forge
    ```
 
